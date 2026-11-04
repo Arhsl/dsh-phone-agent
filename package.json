@@ -22,12 +22,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/USER/dsh-phone-agent.git"
+    "url": "git+https://github.com/Arhsl/dsh-phone-agent.git"
   },
   "bugs": {
-    "url": "https://github.com/USER/dsh-phone-agent/issues"
+    "url": "https://github.com/Arhsl/dsh-phone-agent/issues"
   },
-  "homepage": "https://github.com/USER/dsh-phone-agent#readme",
+  "homepage": "https://github.com/Arhsl/dsh-phone-agent#readme",
   "files": [
     "index.js",
     "cordis.patch.yml",
