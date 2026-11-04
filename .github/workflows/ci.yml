@@ -1,0 +1,87 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Test (Node ${{ matrix.node }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      # No install step: the package has zero runtime dependencies. If a
+      # dependency ever appears, this job fails loudly instead of quietly
+      # testing a different tree than users get.
+      - name: Verify there are no runtime dependencies
+        shell: bash
+        run: |
+          node -e '
+            const pkg = require("./package.json");
+            const deps = Object.keys(pkg.dependencies || {});
+            if (deps.length) {
+              console.error("unexpected runtime dependencies: " + deps.join(", "));
+              process.exit(1);
+            }
+            console.log("no runtime dependencies");
+          '
+
+      - name: Offline test suite
+        run: npm test
+
+      - name: Prepack gate
+        run: npm run prepack
+
+  package:
+    name: Package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - run: npm pack --dry-run
+
+      - name: Assert the tarball ships the runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm pack >/dev/null
+          tarball=$(ls *.tgz | head -n1)
+          echo "tarball: $tarball"
+          tar -tzf "$tarball" | sort > packed.txt
+          cat packed.txt
+          for need in package/index.js package/cordis.patch.yml \
+                      package/lib/config.js package/lib/transport.js \
+                      package/lib/render.js package/lib/runner.js \
+                      package/vendor/phone-task.mjs package/vendor/phone-script.mjs \
+                      package/vendor/phone-gesture.mjs package/README.md package/LICENSE; do
+            if ! grep -qx "$need" packed.txt; then
+              echo "::error::the tarball is missing $need"
+              exit 1
+            fi
+          done
+          if grep -qE 'package/(\.phone-agent\.json|\.env|node_modules|test/)' packed.txt; then
+            echo "::error::the tarball contains files it must not ship"
+            exit 1
+          fi
+          echo "tarball contents OK"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: npm-tarball
+          path: '*.tgz'
