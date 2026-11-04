@@ -1,0 +1,10 @@
+# Keep line endings stable across platforms: this repo is edited on Windows
+# and tested on both Linux and Windows in CI. Without this, a checkout on
+# Windows rewrites every file to CRLF and CI's diff-heavy checks start
+# disagreeing with the working tree.
+* text=auto eol=lf
+
+# Binary-ish files that must never be normalised.
+*.png binary
+*.jpg binary
+*.tgz binary
