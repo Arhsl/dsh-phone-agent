@@ -1,0 +1,31 @@
+# dsh-phone-agent bundle patch.
+#
+# Registers the host plugin that turns the phone's accessibility service into
+# DSH tools (phone_screen / phone_click / phone_text / phone_task / …).
+#
+# A plain insert(id/name) so it hot-mounts without a restart once the profile
+# picks the bundle up.
+#
+# Optional config, every field also settable through the credentials file
+# ($DSH_HOME/.phone-agent.json) or the environment:
+#
+#   host         phone address shown in the DSH app under 「手机 Agent」
+#   port         agent port, default 8790
+#   token        pairing token from the same panel; never logged
+#   configFile   an explicit credentials JSON path
+#   taskRunner   override the bundled vendor/phone-task.mjs (development only)
+#
+# Example with config inline:
+#
+#   - insert:
+#       - id: dsh-phone-agent
+#         name: dsh-phone-agent
+#         config:
+#           host: "192.168.1.20"
+#           port: 8790
+#
+# Inline config is optional — the credentials file is the normal path, and it
+# keeps the token out of the profile's YAML.
+- insert:
+    - id: dsh-phone-agent
+      name: dsh-phone-agent
