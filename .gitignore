@@ -1,0 +1,23 @@
+# Ignore everything a normal checkout produces, but keep the vendored runner:
+# it is part of the shipped package, not a build artifact.
+node_modules/
+package-lock.json
+pnpm-lock.yaml
+
+# Task run output: screenshots and failure trees land in the cwd.
+phone-tasks/
+phone-shot-*.png
+
+# Credentials. The token grants control of the phone — never commit it.
+.phone-agent.json
+.env
+.env.*
+
+# Tarballs from `npm pack`.
+*.tgz
+
+# Editor and OS noise.
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
